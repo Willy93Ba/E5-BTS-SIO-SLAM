@@ -1,0 +1,156 @@
+-- phpMyAdmin SQL Dump
+-- version 3.3.9.2
+-- http://www.phpmyadmin.net
+--
+-- Serveur: 127.0.0.1
+-- Généré le : Mer 03 Avril 2024 à 23:52
+-- Version du serveur: 5.5.10
+-- Version de PHP: 5.3.6
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Base de données: `locationdvd`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `admin`
+--
+
+CREATE TABLE IF NOT EXISTS `admin` (
+  `id_admin` int(11) NOT NULL AUTO_INCREMENT,
+  `Nom_admin` varchar(20) NOT NULL,
+  `Prenom_admin` varchar(20) NOT NULL,
+  `identifiant_admin` varchar(20) NOT NULL,
+  `mdp_admin` varchar(50) NOT NULL,
+  PRIMARY KEY (`id_admin`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+
+--
+-- Contenu de la table `admin`
+--
+
+INSERT INTO `admin` (`id_admin`, `Nom_admin`, `Prenom_admin`, `identifiant_admin`, `mdp_admin`) VALUES
+(1, 'Da Silva', 'William', 'William7', 'AAAAAAA'),
+(2, 'William', 'DADA', 'A', 'A');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `clients`
+--
+
+CREATE TABLE IF NOT EXISTS `clients` (
+  `nom_client` varchar(20) NOT NULL,
+  `id_client` int(11) NOT NULL AUTO_INCREMENT,
+  `prenom_client` varchar(20) NOT NULL,
+  `adresse_client` varchar(20) NOT NULL,
+  `numero_client` int(11) NOT NULL,
+  `email_client` varchar(11) NOT NULL,
+  PRIMARY KEY (`id_client`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+
+--
+-- Contenu de la table `clients`
+--
+
+INSERT INTO `clients` (`nom_client`, `id_client`, `prenom_client`, `adresse_client`, `numero_client`, `email_client`) VALUES
+('AAAAAAA', 3, 'AAAAAA', 'AAAA', 0, 'AAAA');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `dvd`
+--
+
+CREATE TABLE IF NOT EXISTS `dvd` (
+  `id_dvd` int(11) NOT NULL AUTO_INCREMENT,
+  `titre_dvd` varchar(50) NOT NULL,
+  `realisateur` varchar(20) NOT NULL,
+  `anneeSortie` year(4) NOT NULL,
+  `genre` varchar(20) NOT NULL,
+  `description` mediumtext NOT NULL,
+  `image` varchar(100) NOT NULL,
+  PRIMARY KEY (`id_dvd`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10 ;
+
+--
+-- Contenu de la table `dvd`
+--
+
+INSERT INTO `dvd` (`id_dvd`, `titre_dvd`, `realisateur`, `anneeSortie`, `genre`, `description`, `image`) VALUES
+(1, 'AAAAA', ' Isabella Marlowe', 2025, '0', 'Dans un monde où les âmes des défunts errent entre deux dimensions, le "Labyrinthe des Âmes Perdues"', ''),
+(3, 'Échos de l''Infini', 'Sophia Renard', 2027, 'Science-Fiction', '"Échos de l''Infini" nous transporte dans un avenir où la technologie a permis aux êtres humains de v', ''),
+(6, 'Labyrinthe des Âmes Perdues', 'Isabella Marlowe', 2025, 'Action', 'AAAAAAAAA', ''),
+(8, 'TESTTTTTTTTTTTTTTTTTTTTTTTTTT', 'TEST', 2020, 'Action', 'TEST', ''),
+(9, 'AAAA', 'AAAAAA', 2020, 'Horreur', 'AAAAAA', '');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `location`
+--
+
+CREATE TABLE IF NOT EXISTS `location` (
+  `Id_location` int(11) NOT NULL AUTO_INCREMENT,
+  `Id_client` int(11) NOT NULL,
+  `id_dvd` int(11) NOT NULL,
+  `date_debut` date NOT NULL,
+  `date_fin` date NOT NULL,
+  PRIMARY KEY (`Id_location`),
+  KEY `Id_client` (`Id_client`,`id_dvd`),
+  KEY `id_dvd` (`id_dvd`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+--
+-- Contenu de la table `location`
+--
+
+INSERT INTO `location` (`Id_location`, `Id_client`, `id_dvd`, `date_debut`, `date_fin`) VALUES
+(1, 3, 1, '2024-02-29', '2024-03-01');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `retour`
+--
+
+CREATE TABLE IF NOT EXISTS `retour` (
+  `RetourId` int(11) NOT NULL AUTO_INCREMENT,
+  `Location` int(11) NOT NULL,
+  `Date_de_retour` date NOT NULL,
+  `LocationPrix` decimal(65,0) NOT NULL,
+  `Loc_supp` tinyint(1) NOT NULL,
+  PRIMARY KEY (`RetourId`),
+  KEY `Location` (`Location`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `retour`
+--
+
+
+--
+-- Contraintes pour les tables exportées
+--
+
+--
+-- Contraintes pour la table `location`
+--
+ALTER TABLE `location`
+  ADD CONSTRAINT `location_ibfk_1` FOREIGN KEY (`id_dvd`) REFERENCES `dvd` (`id_dvd`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `location_ibfk_2` FOREIGN KEY (`Id_client`) REFERENCES `clients` (`id_client`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Contraintes pour la table `retour`
+--
+ALTER TABLE `retour`
+  ADD CONSTRAINT `retour_ibfk_1` FOREIGN KEY (`Location`) REFERENCES `location` (`Id_location`) ON DELETE CASCADE ON UPDATE CASCADE;
