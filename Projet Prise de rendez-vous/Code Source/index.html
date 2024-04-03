@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: blanchedalmond;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            color: black;
+            padding: 10px 20px;
+        }
+
+        .header img {
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+        }
+
+        .site-name {
+            font-size: 10px;
+        }
+
+        .centered-image {
+            text-align: center;
+
+        }
+
+        .menu-table {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+        }
+
+        .menu-table table {
+            border-collapse: collapse;
+        }
+
+        .menu-table td {
+            padding: 10px;
+        }
+
+        .menu-button {
+            background-color: white;
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            text-align: center;
+        }
+
+        .menu-button:hover {
+            background-color: white;
+        }
+
+        .table-container {
+            float: right;
+            margin-right: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            text-align: center;
+            padding: 20px;
+        }
+
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+        }
+
+        /* Styles pour les images */
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="LYCEE HARMONIA.png" alt="Logo">
+        <h1>LYCEE HARMONIA</h1>
+        <div class="site-name">RencontresÉducativesHarmonia.com</div>
+    </div>
+
+    <!-- Déplacer le tableau dans une div avec la classe "table-container" -->
+    <div class="table-container">
+        <table border="1">
+            <tr>
+                <td>
+                    <a href="connexion_prof.php"class="menu-button" >
+                        <img class="menu-icon" src="logo-prof.png" alt="Professeur"> Professeur
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="connexion_parent.php" class="menu-button" >
+                        <img class="menu-icon" src="logo-parent.png" alt="Parent"> Parent
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Image centrée -->
+    <div class="centered-image">
+        <img src="image-mid.png" alt="Image centrée" style="width: 800px;">
+    </div>
+</body>
+</html>
