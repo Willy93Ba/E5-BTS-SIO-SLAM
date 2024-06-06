@@ -1,148 +1,176 @@
-<tbody>
-                <?php
-                require_once('functions_parent.php');
-                if (!isset($_SESSION['parent']['id_parent'])) {
-                    header('Location: connexion_parent.php'); // Rediriger l'utilisateur vers la page de connexion si la session n'est pas active
-                    exit();
-                }
-                // Code PHP pour récupérer les classes depuis la base de données
+<?php
+session_start();
+header('Content-Type: text/html; charset=utf-8');
 
-                ?>
-            </tbody>
-<!DOCTYPE html>
+
+function isParentLoggedIn() {
+    return isset($_SESSION['parent']);
+}
+
+// Fonction pour se connecter à la base de données avec UTF-8
+function connectDB() {
+    // Paramètres de connexion au serveur de base de données
+    $host = 'localhost';
+    $dbname = 'u967421408_DASILVA';
+    $username = 'u967421408_DASILVA';
+    $password = '66y9pD%ditS!5hNmcm8fLVq36cU%Fxzr#!RtMnBN';
+    try {
+        // Utilisation de l'extension PDO pour la connexion
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $pdo;
+    } catch (PDOException $e) {
+        die("Erreur de connexion à la base de données : " . $e->getMessage());
+    }
+}
+
+if (!isset($_SESSION['parent'])) {
+    header('Location: connexion_parent.php');
+    exit;
+}
+
+// Affichage de bienvenue
+echo "<h3>Bonjour " . htmlspecialchars($_SESSION['parent']['nom_parent']) . "</h3>";
+
+
+// Fonction pour récupérer la liste des professeurs liés à l'enfant du parent connecté
+function getProfessorsForParent($parent_id){
+    $link = connectDB();
+    if(!$link){
+        return false;
+    } else {
+        try {
+            $stmt = $link->prepare("SELECT e.* FROM enseignants e INNER JOIN classesenseignants ce ON e.id_prof = ce.id_prof INNER JOIN enfants en ON ce.id_classe = en.id_classe WHERE en.id_parent = ?");
+            $stmt->execute(array($parent_id));
+            $professors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $professors;
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+}
+
+// Fonction pour enregistrer un rendez-vous
+function saveAppointment($parent_id, $prof_id, $meeting_time, $comment){
+    $link = connectDB();
+    if(!$link){
+        return false;
+    } else {
+        try {
+            // Enregistrement du rendez-vous avec le statut "ENVOYE" et la vérification vide
+            $stmt = $link->prepare("INSERT INTO rendezvous (id_parent, id_prof, meeting_time, commentaires, statut, Verification) VALUES (?, ?, ?, ?, 'ENVOYE', 'EN ATTENTE')");
+            $stmt->execute(array($parent_id, $prof_id, $meeting_time, $comment));
+            return true;
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+}
+
+// Fonction pour récupérer les rendez-vous du parent
+function getAppointmentsForParent($parent_id){
+    $link = connectDB();
+    if(!$link){
+        return false;
+    } else {
+        try {
+            $stmt = $link->prepare("SELECT * FROM rendezvous WHERE id_parent = ?");
+            $stmt->execute(array($parent_id));
+            $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $appointments;
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+}
+
+
+var_dump(function_exists('isParentLoggedIn'));
+
+if (isParentLoggedIn()) {
+    $parent_id = $_SESSION['parent']['id_parent'];
+
+    // Si le formulaire pour prendre un rendez-vous est soumis
+    if(isset($_POST['valider_rdv'])){
+        $prof_id = $_POST['prof_id'];
+        $meeting_time = $_POST['meeting_time'];
+        $comment = $_POST['commentaire'];
+        if(saveAppointment($parent_id, $prof_id, $meeting_time, $comment)){
+            echo "<div style='color: green; text-align: center;'><h3>Rendez-vous enregistré avec succès!</h3></div>";
+        } else {
+            echo "<div style='color: red; text-align: center;'><h3>Erreur lors de l'enregistrement du rendez-vous.</h3></div>";
+        }
+    }
+} else {
+    echo 'Erreur : Parent non connecté.';
+}
+
+    // Récupérer la liste des professeurs pour cet parent
+    $professors = getProfessorsForParent($parent_id);
+
+    // Récupérer les rendez-vous de cet parent
+    $appointments = getAppointmentsForParent($parent_id);
+
+?>
+
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Menu Parent</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-    <style>
-        /* Styles CSS personnalisés */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: beige;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        .menu {
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 20px;
-        }
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100px; /* Hauteur de l'en-tête */
-        }
-        .button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            margin: 0 10px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        .classes {
-            display: none;
-            position: absolute;
-            top: 180px; /* Écart par rapport à l'en-tête */
-            left: 20px;
-            background-color: #fff;
-            color: #333;
-            border: 1px solid #ccc;
-            z-index: 1;
-            padding: 20px;
-        }
-        .table-container {
-            display: flex;
-            justify-content: center;
-        }
-        table {
-            width: 50%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-        .class-option:hover {
-            background-color: #f2f2f2;
-        }
+    <meta charset="UTF-8">
 
-    </style>
 </head>
+
 <body>
-<div class="menu">
-<h1>Bonjour, <?php echo $_SESSION['parent']['nom_parent']; ?></h1>
-<a href="session.php">Déconnexion</a>
-</div>
-<div class="button-container">
-    <form action="" method="post">
-    <button class="submit" name="prise">Prise de Rendez-vous</button>
-    <button class="submit" name="statut">Statut de la demande de rendez-vous</button>
-</form> <?php
-if (isset($_POST['statut'])) {
-   $demandes = getStatutDemandesParent($_SESSION['parent']['id_parent']); // Assurez-vous d'avoir une fonction getStatutDemandesParent pour récupérer les demandes du parent
+<div class='container'>
+    <?php if(isParentLoggedIn()): ?>
+        <div style='text-align: center;'>
+            <h1 style='color: blue;'>Menu parent</h1>
+            <div style='text-align: center;'>
+            <h3 style='color: green;'>Bonjour <?php echo $_SESSION['parent']['nom_parent']; ?></h3>
+        </div>
+        </div>
 
-    if ($demandes) {
-        echo '<div class="table-container">';
-        echo '<table>';
-        echo '<thead><tr><th>Nom Professeur</th><th>Calendrier</th><th>Statut</th><th>Motif du Refus</th></tr></thead>';
-        echo '<tbody>';
-        foreach ($demandes as $demande) {
-            echo '<tr>';
-            echo '<td>' . $demande['nom_prof'] . '</td>';
-            echo '<td>' . $demande['meeting_time'] . '</td>';
-            echo '<td>' . $demande['statut'] . '</td>';
-            echo '<td>' . $demande['commentaires'] . '</td>';
-            echo '</tr>';
-        }
-        echo '</tbody>';
-        echo '</table>';
-        echo '</div>';
-    } else {
-        echo 'Aucune demande de rendez-vous trouvée.';
-    }
-}
-?>
+        <h2>Liste des professeurs</h2>
+        <ul>
+            <?php foreach($professors as $professor): ?>
+                <li><?php echo $professor['nom_prof']; ?> <?php echo $professor['prenom_prof']; ?> <?php echo $professor['matiere']; ?></li>
+            <?php endforeach; ?>
+        </ul>
 
-    </form>
+        <h2>Prendre un rendez-vous</h2>
+        <form class="form" action="" method="post">
+            <div class='form-group mb-2'>
+                <select name="prof_id" class="form-control" required>
+                    <option value="">Sélectionner un professeur</option>
+                    <?php foreach($professors as $professor): ?>
+                        <option value="<?php echo $professor['id_prof']; ?>"><?php echo $professor['nom_prof']; ?>  <?php echo $professor['prenom_prof']; ?>  <?php echo $professor['matiere']; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class='form-group mb-2'>
+                <label>Date et heure</label>
+                <input type="datetime-local" class="form-control" name="meeting_time" required/>
+            </div>
+            <div class='form-group mb-2'>
+                <label>Commentaires</label>
+                <textarea class="form-control" name="commentaire"></textarea>
+            </div>
+            <button type="submit" name="valider_rdv" class="btn btn-primary">Confirmer le rendez-vous</button>
+        </form>
+
+        <h2>Mes rendez-vous</h2>
+        <ul>
+            <?php foreach($appointments as $appointment): ?>
+                <li>Rendez-vous avec <?php echo $appointment['id_prof']; ?> le <?php echo $appointment['meeting_time']; ?> (Statut: <?php echo ($appointment['Verification'] == 'EN ATTENTE' ? 'En attente de vérification du modérateur' : ($appointment['statut_prof'] == 'ACCEPTE' ? 'Accepté par le modérateur' : 'Refusé par le modérateur')) ?>) Reponse du prof: <?php echo ($appointment['statut_prof'] == 'EN ATTENTE' ? 'En attente de vérification du professeur' : ($appointment['statut_prof'] == 'ACCEPTE' ? 'Accepté par le professeur' : 'Refusé par le professeur')) ?>)</li>
+            <?php endforeach; ?>
+        </ul>
+
+    <?php else: ?>
+        <p style='color: red; text-align: center;'>Veuillez vous connecter en tant que parent pour accéder à cette page.</p>
+    <?php endif; ?>
 </div>
-<?php
-if (isset($_POST['prise'])) {
-    $tab_prof = getProfParent();
-    if ($tab_prof) {
-        echo '<div class="table-container">';
-        echo '<table>';
-        echo '<thead><tr><th>Nom</th><th>Prénom</th><th>Calendrier</th></tr></thead>';
-        echo '<tbody>';
-        foreach ($tab_prof as $prof) {
-            echo '<tr>';
-            echo '<td>' . $prof['nom_prof'] . '</td>';
-            echo '<td>' . $prof['prenom_prof'] . '</td>';
-            echo '<td>';
-            echo '<form action="traitement_prise_rdv.php" method="post">';
-            echo '<input name="id_prof" type="hidden" value="' . $prof['id_prof'] . '" />';
-            echo '<input type="datetime-local" id="meeting-time-' . $prof['id_prof'] . '" name="meeting_time" min="2023-01-01T00:00" max="2024-12-31T00:00" />';
-            echo '<textarea name="commentaires" rows="4" placeholder="Motif du rendez-vous" required></textarea>';
-            echo '<button type="submit" name="saverdv">Prendre RDV</button>';
-            echo '</form>';
-            echo '</td>';
-            echo '</tr>';
-        }
-        echo '</tbody>';
-        echo '</table>';
-        echo '</div>';
-    } else {
-        echo 'Aucun professeur trouvé.';
-    }
-}
-?>
 </body>
 </html>
