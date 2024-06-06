@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mer. 03 avr. 2024 à 21:49
+-- Généré le : jeu. 06 juin 2024 à 12:12
 -- Version du serveur : 10.11.7-MariaDB-cll-lve
 -- Version de PHP : 7.2.34
 
@@ -38,10 +38,10 @@ CREATE TABLE `classes` (
 --
 
 INSERT INTO `classes` (`id_classe`, `nom_classe`, `niv_classe`) VALUES
-(1, '6eme A', '6eme A'),
-(2, '6eme B', '6eme B'),
-(3, '6eme C', '6eme C'),
-(4, '6eme D', '6eme D');
+(1, '6eme A', '6eme'),
+(2, '6eme B', '6eme'),
+(3, '6eme C', '6eme'),
+(4, '6eme D', '6eme');
 
 -- --------------------------------------------------------
 
@@ -60,8 +60,11 @@ CREATE TABLE `classesenseignants` (
 --
 
 INSERT INTO `classesenseignants` (`id_ce`, `id_prof`, `id_classe`) VALUES
-(1, 1, 1),
-(2, 2, 2);
+(16, 1, 1),
+(17, 2, 1),
+(18, 3, 2),
+(19, 4, 3),
+(20, 5, 4);
 
 -- --------------------------------------------------------
 
@@ -81,8 +84,9 @@ CREATE TABLE `enfants` (
 --
 
 INSERT INTO `enfants` (`id_enfant`, `nom_enfant`, `id_classe`, `id_parent`) VALUES
-(1, 'enfant19', 1, 12),
-(2, 'enfant2', 2, 12);
+(1, 'Enfant1', 1, 1),
+(2, 'Enfant2', 2, 2),
+(3, 'Enfant3', 3, 3);
 
 -- --------------------------------------------------------
 
@@ -95,7 +99,7 @@ CREATE TABLE `enseignants` (
   `matiere` varchar(20) NOT NULL,
   `nom_prof` varchar(20) NOT NULL,
   `prenom_prof` varchar(20) NOT NULL,
-  `email_prof` varchar(20) NOT NULL,
+  `email_prof` varchar(200) NOT NULL,
   `motdepasse` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -104,9 +108,32 @@ CREATE TABLE `enseignants` (
 --
 
 INSERT INTO `enseignants` (`id_prof`, `matiere`, `nom_prof`, `prenom_prof`, `email_prof`, `motdepasse`) VALUES
-(1, 'Prof EPS', 'SPORT 1', 'PROF 1', 'PROFEPS@GMAIL.COM', 'aaa'),
-(2, 'Prof SVT', 'SVT 1', 'PROF 1', 'PROSVT@gmail.com', 'aaa'),
-(3, 'Prof EPS', 'Batista', 'Will', 'williamEPS@gmail.fr', 'AAA');
+(1, 'Mathématiques', 'Durant', 'Julie', 'julie.durant@example.com\r\n', 'pass123'),
+(2, 'Français', 'Petit', 'Emile', 'emile.petit@example.com', 'pass123'),
+(3, 'Histoire', 'Leroy', 'Sophie', 'sophie.leroy@example.com', 'pass123'),
+(4, 'SVT', 'Moreau', 'Luc', 'luc.moreau@example.com', 'pass123'),
+(5, 'EPS', 'Simon', 'Claire', 'claire.simon@example.com', 'pass123');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `moderateur`
+--
+
+CREATE TABLE `moderateur` (
+  `id_modo` int(11) NOT NULL,
+  `Identifiant_modo` varchar(30) NOT NULL,
+  `mdp_modo` varchar(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `moderateur`
+--
+
+INSERT INTO `moderateur` (`id_modo`, `Identifiant_modo`, `mdp_modo`) VALUES
+(1, 'Modo1', 'pass1'),
+(2, 'Modo2', 'pass2'),
+(3, 'Modo3', 'pass3');
 
 -- --------------------------------------------------------
 
@@ -118,7 +145,7 @@ CREATE TABLE `parents` (
   `id_parent` int(20) NOT NULL,
   `nom_parent` varchar(20) NOT NULL,
   `prenom_parent` varchar(20) NOT NULL,
-  `email_parent` varchar(50) NOT NULL,
+  `email_parent` varchar(200) NOT NULL,
   `motdepasse` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -127,9 +154,9 @@ CREATE TABLE `parents` (
 --
 
 INSERT INTO `parents` (`id_parent`, `nom_parent`, `prenom_parent`, `email_parent`, `motdepasse`) VALUES
-(2, 'Da Silva', 'William', 'williambatista01072004@gmail.com', 'AA'),
-(4, 'Du Pont', 'Michel', 'Micheldupont@gmail.fr', 'AAA'),
-(5, 'Batista', 'Will', 'william@gmail.fr', 'BBB');
+(1, 'Parent1', 'Alice', 'alice.parent1@example.com', 'pass123'),
+(2, 'Parent2', 'Bob', 'bob.parent2@example.com', 'pass123'),
+(3, 'Parent3', 'Charlie', 'charlie.parent3@example.com', 'pass123');
 
 -- --------------------------------------------------------
 
@@ -143,7 +170,24 @@ CREATE TABLE `rendezvous` (
   `id_prof` int(20) NOT NULL,
   `meeting_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `statut` varchar(20) NOT NULL DEFAULT 'ENVOYE',
-  `commentaires` varchar(100) NOT NULL
+  `commentaires` varchar(100) NOT NULL,
+  `Verification` varchar(30) NOT NULL,
+  `statut_prof` varchar(20) DEFAULT 'EN ATTENTE'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `tchat`
+--
+
+CREATE TABLE `tchat` (
+  `id_tchat` int(11) NOT NULL,
+  `id_prof` int(11) DEFAULT NULL,
+  `id_parent` int(11) DEFAULT NULL,
+  `id_modo` int(11) DEFAULT NULL,
+  `date_du_message` timestamp NOT NULL DEFAULT current_timestamp(),
+  `message` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
@@ -179,6 +223,12 @@ ALTER TABLE `enseignants`
   ADD PRIMARY KEY (`id_prof`);
 
 --
+-- Index pour la table `moderateur`
+--
+ALTER TABLE `moderateur`
+  ADD PRIMARY KEY (`id_modo`);
+
+--
 -- Index pour la table `parents`
 --
 ALTER TABLE `parents`
@@ -191,6 +241,12 @@ ALTER TABLE `rendezvous`
   ADD PRIMARY KEY (`id_rdv`),
   ADD KEY `id_parent` (`id_parent`),
   ADD KEY `id_prof` (`id_prof`);
+
+--
+-- Index pour la table `tchat`
+--
+ALTER TABLE `tchat`
+  ADD PRIMARY KEY (`id_tchat`);
 
 --
 -- AUTO_INCREMENT pour les tables déchargées
@@ -206,55 +262,43 @@ ALTER TABLE `classes`
 -- AUTO_INCREMENT pour la table `classesenseignants`
 --
 ALTER TABLE `classesenseignants`
-  MODIFY `id_ce` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_ce` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT pour la table `enfants`
 --
 ALTER TABLE `enfants`
-  MODIFY `id_enfant` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_enfant` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `enseignants`
 --
 ALTER TABLE `enseignants`
-  MODIFY `id_prof` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_prof` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT pour la table `moderateur`
+--
+ALTER TABLE `moderateur`
+  MODIFY `id_modo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `parents`
 --
 ALTER TABLE `parents`
-  MODIFY `id_parent` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id_parent` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `rendezvous`
 --
 ALTER TABLE `rendezvous`
-  MODIFY `id_rdv` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_rdv` int(20) NOT NULL AUTO_INCREMENT;
 
 --
--- Contraintes pour les tables déchargées
+-- AUTO_INCREMENT pour la table `tchat`
 --
-
---
--- Contraintes pour la table `classesenseignants`
---
-ALTER TABLE `classesenseignants`
-  ADD CONSTRAINT `classesenseignants_ibfk_1` FOREIGN KEY (`id_classe`) REFERENCES `classes` (`id_classe`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `classesenseignants_ibfk_2` FOREIGN KEY (`id_prof`) REFERENCES `enseignants` (`id_prof`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Contraintes pour la table `enfants`
---
-ALTER TABLE `enfants`
-  ADD CONSTRAINT `enfants_ibfk_1` FOREIGN KEY (`id_classe`) REFERENCES `classes` (`id_classe`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Contraintes pour la table `rendezvous`
---
-ALTER TABLE `rendezvous`
-  ADD CONSTRAINT `rendezvous_ibfk_1` FOREIGN KEY (`id_parent`) REFERENCES `parents` (`id_parent`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `rendezvous_ibfk_2` FOREIGN KEY (`id_prof`) REFERENCES `enseignants` (`id_prof`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `tchat`
+  MODIFY `id_tchat` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
